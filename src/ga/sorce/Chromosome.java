@@ -95,7 +95,7 @@ public class Chromosome implements Comparable<Chromosome> {
 	private static long calculateFitness(int[] gene) {
 		long fitness = 0;
 		for (int i = 0; i < gene.length; i++) {
-			fitness += Math.abs(gene[i] - TARGET_GENE[i]);
+			fitness += Math.abs(gene[i] - TARGET_GENE[i]) == 0? 0:1;
 		}
 		
 		return fitness;
@@ -115,7 +115,7 @@ public class Chromosome implements Comparable<Chromosome> {
 		int[] arr  = Arrays.copyOf(gene, gene.length);
 		int idx     = rand.nextInt(arr.length);
 		//int delta   = rand.nextInt(2) == 0? WHITE:BLACK;
-		arr[idx]    = (rand.nextInt(0xff0000)+0x10000)%0xff0000;
+		arr[idx]    = rand.nextInt(2)==0? BLACK : WHITE;
 		
 		return new Chromosome(arr);
 	}
@@ -161,7 +161,7 @@ public class Chromosome implements Comparable<Chromosome> {
 	public static Chromosome generateRandom() {
 		int[] arr = new int[TARGET_GENE.length];
 		for (int i = 0; i < arr.length; i++) {
-			arr[i] = (rand.nextInt(0xff0000)+0x10000)%0xff0000;
+			arr[i] = rand.nextInt(2)==0? BLACK : WHITE;;
 		}
 
 		return new Chromosome(arr);

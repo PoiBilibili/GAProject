@@ -30,7 +30,7 @@ public class ImageSource {
 		for(int i = 0; i< width; i++)
 			for(int j = 0; j < height; j++)
 				rgbarr[i][j] = bufImage.getRGB(i, j);
-		//toBlackWhite();
+		toBlackWhite();
 	}
 	
 	public BufferedImage getImage(String filename) {

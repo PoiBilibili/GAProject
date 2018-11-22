@@ -80,7 +80,7 @@ public class GAHelloWorld {
 		int i = 0;
 		Chromosome best = pop.getPopulation()[0];
 		while ((i++ <= maxGenerations) && (best.getFitness() != 0)) {
-			if(i%1000 == 0) {
+			if(i%10 == 0) {
 				StringBuilder path = new StringBuilder();
 				path.append("picsrc//");
 				path.append("Generation"+".jpg");
