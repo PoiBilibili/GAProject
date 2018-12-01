@@ -161,7 +161,7 @@ public class Chromosome implements Comparable<Chromosome> {
 	public static Chromosome generateRandom() {
 		int[] arr = new int[TARGET_GENE.length];
 		for (int i = 0; i < arr.length; i++) {
-			arr[i] = rand.nextInt(2)==0? BLACK : WHITE;;
+			arr[i] = rand.nextInt(2)==0? BLACK : WHITE;
 		}
 
 		return new Chromosome(arr);
