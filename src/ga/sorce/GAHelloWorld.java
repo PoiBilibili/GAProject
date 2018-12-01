@@ -94,7 +94,7 @@ public class GAHelloWorld {
 		long endTime = System.currentTimeMillis();
 		
 		// Print out some information to the console.
-		System.out.println("Generation " + i + ": " + best.getGene());
+		System.out.println("Generation " + i + " Finished");
 		System.out.println("Total execution time: " + (endTime - startTime) + 
 				"ms");
 	}
