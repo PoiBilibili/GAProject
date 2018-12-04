@@ -1,7 +1,5 @@
-package ga.sorce;
+package edu.neu.info6205.ga;
 
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +9,7 @@ import javax.imageio.ImageIO;
 public class ImageSource {
 	private final int BLACK = -16777216;
 	private final int WHITE = -1;
-	
+
 	private BufferedImage bufImage;
 	private static int width;
     private static int height;
@@ -30,9 +28,9 @@ public class ImageSource {
 		for(int i = 0; i< width; i++)
 			for(int j = 0; j < height; j++)
 				rgbarr[i][j] = bufImage.getRGB(i, j);
-		//toBlackWhite();
+		toBlackWhite();
 	}
-	
+
 	public BufferedImage getImage(String filename) {
 		File file = new File(filename);
 		BufferedImage bufImage = null;
@@ -44,18 +42,18 @@ public class ImageSource {
 		}
 		return bufImage;
 	}
-	
+
 	public void printImage(String filename) throws IOException {
         int[] rgbs = bufImage.getRGB(0, 0, width, height, null, 0, width);
         bufImage.setRGB(0, 0, width, height, rgbs, 0, width);
         // 把修改过的 bufImage 保存到本地
         ImageIO.write(bufImage, "JPEG", new File(filename));
 	}
-	
+
 	public int[] getRGBArray(){
 		return bufImage.getRGB(0, 0, width, height, null, 0, width);
 	}
-	
+
 	public void setRGB(int x, int y, int rgb) {
 		bufImage.setRGB(x, y, rgb);
 		rgbarr[x][y] = rgb;
@@ -72,7 +70,7 @@ public class ImageSource {
 				else setRGB(i,j, BLACK);
 	}
 	public static void main(String[] args) throws IOException {
-		ImageSource img = new ImageSource("picsrc//bmptest.bmp");
-		img.printImage("picsrc//bmptest.jpg");
+		ImageSource img = new ImageSource("./images/bmptest.bmp");
+		img.printImage("./images///bmptest.jpg");
 	}
 }

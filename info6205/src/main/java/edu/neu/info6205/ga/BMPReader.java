@@ -1,38 +1,34 @@
-package ga.sorce;
+package edu.neu.info6205.ga;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.awt.Color;
+
 
 public class BMPReader {
 	/**
      * @param args
-     * @return 
-     * @throws IOException 
+     * @return
+     * @throws IOException
      */
     public static int[][] ReadBMPPic(String src) throws IOException
     {
         FileInputStream fis=new FileInputStream(src);
         BufferedInputStream bis=new BufferedInputStream(fis);
-            
+
         //丢掉文件头信息
         bis.skip(18);
-        
+
         //获取长度与宽度
         byte[] b1=new byte[4];
         bis.read(b1);
         byte[] b2=new byte[4];
         bis.read(b2);
-        
+
         int Width=byte2Int(b1);
         int Height=byte2Int(b2);
         System.out.println("Hight:"+Height+" Width:"+Width);
-        
+
         //因为bmp位图的读取顺序为横向扫描，所以应把数组定义为int[Height][Width]
         int[][] data=new int[Height][Width];
         int skipnum=0;
@@ -42,9 +38,9 @@ public class BMPReader {
             skipnum=4-Width*3%4;
         }
         System.out.println(skipnum);
-        
+
         bis.skip(28);
-        
+
         for(int i=0;i<data.length;i++)
         {
             for(int j=0;j<data[i].length;j++)
@@ -58,7 +54,7 @@ public class BMPReader {
                 bis.skip(skipnum);
             }
         }
-        
+
         bis.close();
         return data;
     }
@@ -69,6 +65,6 @@ public class BMPReader {
     }
     public static void main(String[] args) throws IOException {
         // TODO Auto-generated method stub
-        ReadBMPPic("picsrc//bmptest.bmp");
+        ReadBMPPic("./images/bmptest.bmp");
     }
 }
