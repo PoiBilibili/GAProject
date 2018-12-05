@@ -79,11 +79,6 @@ public class GAHelloWorld {
 		int i = 0;
 		Chromosome best = pop.getPopulation()[0];
 		while ((i++ <= maxGenerations) && (best.getFitness() != 0)) {
-			if (i == 10 || i == 100 || i == 200 || i == 400) {
-				System.out.println(i + " " + best.getFitness());
-				DrawImage.draw(best.getGene(), width, height, "./images/" + best.getFitness() + ".jpg");
-			}
-
 			if (i % 10 == 0) {
 				StringBuilder path = new StringBuilder();
 				path.append("./images/");
