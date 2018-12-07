@@ -79,22 +79,10 @@ public class GAHelloWorld {
 		int i = 0;
 		Chromosome best = pop.getPopulation()[0];
 		while ((i++ <= maxGenerations) && (best.getFitness() != 0)) {
-<<<<<<< HEAD:src/ga/sorce/GAHelloWorld.java
-			if(i%100 == 0) {
-				StringBuilder path = new StringBuilder();
-				path.append("picsrc//");
-				path.append("Generation"+i+".jpg");
-=======
-			if (i == 10 || i == 100 || i == 200 || i == 400) {
-				System.out.println(i + " " + best.getFitness());
-				DrawImage.draw(best.getGene(), width, height, "./images/" + best.getFitness() + ".jpg");
-			}
-
 			if (i % 10 == 0) {
 				StringBuilder path = new StringBuilder();
 				path.append("./images/");
 				path.append("Generation" + ".jpg");
->>>>>>> 226f7f1fffbb0fab00070e18dde761e0e223fb2e:info6205/src/main/java/edu/neu/info6205/ga/GAHelloWorld.java
 				DrawImage.draw(best.getGene(), width, height, path.toString());
 			}
 			pop.evolve();
