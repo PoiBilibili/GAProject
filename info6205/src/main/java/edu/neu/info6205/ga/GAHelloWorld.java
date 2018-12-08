@@ -78,7 +78,15 @@ public class GAHelloWorld {
 		// generations is reached, or when we find a solution.
 		int i = 0;
 		Chromosome best = pop.getPopulation()[0];
+		long t1 = System.currentTimeMillis();
+
 		while ((i++ <= maxGenerations) && (best.getFitness() != 0)) {
+
+			// if (best.getFitness() < 5000 && best.getFitness() < 5500) {
+			// 	long t2 = System.currentTimeMillis();
+			// 	System.out.println(t2 - t1);
+			// }
+
 			if (i % 10 == 0) {
 				StringBuilder path = new StringBuilder();
 				path.append("./images/");

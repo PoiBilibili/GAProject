@@ -23,14 +23,18 @@
 */
 package edu.neu.info6205.ga;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Class representing a population for a genetic algorithm simulation.
  *
  * A population is simply a sorted collection of <code>Chromosome</code>s
- * (sorted by fitness) that has a convenience method for evolution.  This
+ * (sorted by fitness) that has a convenience method for evolution. This
  * implementation of a population uses a tournament selection algorithm for
  * selecting parents for crossover during each generation's evolution.
  *
@@ -52,22 +56,22 @@ public class Population {
 	private float mutation;
 	private float crossover;
 	private Chromosome[] popArr;
+	private int[] groups;
 
 	/**
 	 * Default constructor.
 	 *
-	 * @param size The size of the population, where size > 0.
+	 * @param size           The size of the population, where size > 0.
 	 * @param crossoverRatio The crossover ratio for the population during
-	 * evolution, where 0.0 <= crossoverRatio <= 1.0.
-	 * @param elitismRatio The elitism ratio for the population during
-	 * evolution, where 0.0 <= elitismRatio < 1.0.
-	 * @param mutationRatio The mutation ratio for the population during
-	 * evolution, where 0.0 <= mutationRatio <= 1.0.
+	 *                       evolution, where 0.0 <= crossoverRatio <= 1.0.
+	 * @param elitismRatio   The elitism ratio for the population during evolution,
+	 *                       where 0.0 <= elitismRatio < 1.0.
+	 * @param mutationRatio  The mutation ratio for the population during evolution,
+	 *                       where 0.0 <= mutationRatio <= 1.0.
 	 *
 	 * @throws IllegalArgumentException Thrown if an invalid ratio is given.
 	 */
-	public Population(int size, float crossoverRatio, float elitismRatio,
-			float mutationRatio) {
+	public Population(int size, float crossoverRatio, float elitismRatio, float mutationRatio) {
 
 		this.crossover = crossoverRatio;
 		this.elitism = elitismRatio;
@@ -78,6 +82,22 @@ public class Population {
 		for (int i = 0; i < size; i++) {
 			this.popArr[i] = Chromosome.generateRandom();
 		}
+
+		groups = new int[13];
+		int start = Math.round(popArr.length * elitism);
+		int i = 0;
+		groups[i++] = start;
+		int dura = (popArr.length - start) / 11;
+		int curr = start;
+		while (curr < popArr.length) {
+			curr += dura;
+			if (curr > 2048) {
+				curr = 2048;
+			}
+			groups[i++] = curr;
+		}
+
+		Arrays.stream(groups).forEach(System.out::println);
 
 		Arrays.sort(this.popArr);
 	}
@@ -94,55 +114,70 @@ public class Population {
 		int idx = Math.round(popArr.length * elitism);
 		System.arraycopy(popArr, 0, buffer, 0, idx);
 
+		ExecutorService pool = Executors.newFixedThreadPool(12);
+
+		for (int i = 1; i < groups.length; i++) {
+			Thread t = new MyThread(groups[i - 1], groups[i], buffer, popArr, crossover, mutation);
+			pool.execute(t);
+		}
+
+		pool.shutdown();
+		while (true) {
+			if (pool.isTerminated()) {
+				// System.out.println("所有的子线程都结束了！");
+				break;
+			}
+		}
+
 		// Iterate over the remainder of the population and evolve as
 		// appropriate.
-		while (idx < buffer.length) {
-			// Check to see if we should perform a crossover.
-			if (rand.nextFloat() <= crossover) {
+		// while (idx < buffer.length) {
+		// // Check to see if we should perform a crossover.
+		// if (rand.nextFloat() <= crossover) {
 
-				// Select the parents and mate to get their children
-				Chromosome[] parents = selectParents();
-				Chromosome[] children = parents[0].mate(parents[1]);
+		// // Select the parents and mate to get their children
+		// Chromosome[] parents = selectParents();
+		// Chromosome[] children = parents[0].mate(parents[1]);
 
-				// Check to see if the first child should be mutated.
-				if (rand.nextFloat() <= mutation) {
-					buffer[idx++] = children[0].mutate();
-				} else {
-					buffer[idx++] = children[0];
-				}
+		// // Check to see if the first child should be mutated.
+		// if (rand.nextFloat() <= mutation) {
+		// buffer[idx++] = children[0].mutate();
+		// } else {
+		// buffer[idx++] = children[0];
+		// }
 
-				// Repeat for the second child, if there is room.
-				if (idx < buffer.length) {
-					if (rand.nextFloat() <= mutation) {
-						buffer[idx] = children[1].mutate();
-					} else {
-						buffer[idx] = children[1];
-					}
-				}
-			} else { // No crossover, so copy verbatium.
-				// Determine if mutation should occur.
-				if (rand.nextFloat() <= mutation) {
-					buffer[idx] = popArr[idx].mutate();
-				} else {
-					buffer[idx] = popArr[idx];
-				}
-			}
+		// // Repeat for the second child, if there is room.
+		// if (idx < buffer.length) {
+		// if (rand.nextFloat() <= mutation) {
+		// buffer[idx] = children[1].mutate();
+		// } else {
+		// buffer[idx] = children[1];
+		// }
+		// }
+		// } else { // No crossover, so copy verbatium.
+		// // Determine if mutation should occur.
+		// if (rand.nextFloat() <= mutation) {
+		// buffer[idx] = popArr[idx].mutate();
+		// } else {
+		// buffer[idx] = popArr[idx];
+		// }
+		// }
 
-			// Increase our counter
-			++idx;
-		}
+		// Increase our counter
+		// ++idx;
+		// }
 
 		// Sort the buffer based on fitness.
 		Arrays.sort(buffer);
 
 		// Reset the population
 		popArr = buffer;
+
 	}
 
 	/**
-	 * Method used to retrieve a copy of the current population.  This
-	 * method returns a copy of the population at the time the method was
-	 * called.
+	 * Method used to retrieve a copy of the current population. This method returns
+	 * a copy of the population at the time the method was called.
 	 *
 	 * @return A copy of the population.
 	 */
@@ -181,8 +216,8 @@ public class Population {
 	}
 
 	/**
-	 * A helper method that can be used to select two random parents from
-	 * the population to use in crossover during evolution.
+	 * A helper method that can be used to select two random parents from the
+	 * population to use in crossover during evolution.
 	 *
 	 * @return Two randomly selected <code>Chromsomes</code> for crossover.
 	 */
