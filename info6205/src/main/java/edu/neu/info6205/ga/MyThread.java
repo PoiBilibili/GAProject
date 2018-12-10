@@ -1,6 +1,5 @@
 package edu.neu.info6205.ga;
 
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -12,19 +11,15 @@ public class MyThread extends Thread {
   private int end;
   private Chromosome[] buffer;
   private Chromosome[] popArr;
-  private float crossover;
-  private float mutation;
   private static final Random rand = new Random(System.currentTimeMillis());
   private static final int TOURNAMENT_SIZE = 3;
 
-  public MyThread(int start, int end, Chromosome[] buffer, Chromosome[] popArr, float crossover, float mutation) {
+  public MyThread(int start, int end, Chromosome[] buffer, Chromosome[] popArr) {
     super();
     this.start = start;
     this.end = end;
     this.buffer = buffer;
     this.popArr = popArr;
-    this.crossover = crossover;
-    this.mutation = mutation;
   }
 
   private Chromosome[] selectParents() {
@@ -54,14 +49,14 @@ public class MyThread extends Thread {
 
     while (idx < end) {
       // Check to see if we should perform a crossover.
-      if (rand.nextFloat() <= crossover) {
+      if (rand.nextFloat() <= Constants.crossoverRatio) {
 
         // Select the parents and mate to get their children
         Chromosome[] parents = selectParents();
         Chromosome[] children = parents[0].mate(parents[1]);
 
         // Check to see if the first child should be mutated.
-        if (rand.nextFloat() <= mutation) {
+        if (rand.nextFloat() <= Constants.mutationRatio) {
           buffer[idx++] = children[0].mutate();
         } else {
           buffer[idx++] = children[0];
@@ -69,7 +64,7 @@ public class MyThread extends Thread {
 
         // Repeat for the second child, if there is room.
         if (idx < buffer.length) {
-          if (rand.nextFloat() <= mutation) {
+          if (rand.nextFloat() <= Constants.mutationRatio) {
             buffer[idx] = children[1].mutate();
           } else {
             buffer[idx] = children[1];
@@ -77,7 +72,7 @@ public class MyThread extends Thread {
         }
       } else { // No crossover, so copy verbatium.
         // Determine if mutation should occur.
-        if (rand.nextFloat() <= mutation) {
+        if (rand.nextFloat() <= Constants.mutationRatio) {
           buffer[idx] = popArr[idx].mutate();
         } else {
           buffer[idx] = popArr[idx];

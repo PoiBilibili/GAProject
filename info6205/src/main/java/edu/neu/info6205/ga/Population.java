@@ -23,12 +23,11 @@
 */
 package edu.neu.info6205.ga;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class representing a population for a genetic algorithm simulation.
@@ -57,6 +56,8 @@ public class Population {
 	private float crossover;
 	private Chromosome[] popArr;
 	private int[] groups;
+	private final int threads = 12;
+	private ExecutorService pool;
 
 	/**
 	 * Default constructor.
@@ -73,33 +74,32 @@ public class Population {
 	 */
 	public Population(int size, float crossoverRatio, float elitismRatio, float mutationRatio) {
 
-		this.crossover = crossoverRatio;
-		this.elitism = elitismRatio;
-		this.mutation = mutationRatio;
+		this.crossover = Constants.crossoverRatio;
+		this.elitism = Constants.elitismRatio;
+		this.mutation = Constants.mutationRatio;
 
 		// Generate an initial population
 		this.popArr = new Chromosome[size];
 		for (int i = 0; i < size; i++) {
 			this.popArr[i] = Chromosome.generateRandom();
 		}
+		generateGroups();
+		Arrays.sort(this.popArr);
+	}
 
-		groups = new int[13];
-		int start = Math.round(popArr.length * elitism);
+	private void generateGroups() {
+		groups = new int[threads + 1];
+		int curr = Math.round(popArr.length * elitism);
 		int i = 0;
-		groups[i++] = start;
-		int dura = (popArr.length - start) / 11;
-		int curr = start;
+		groups[i++] = curr;
+		int dura = (popArr.length - curr) / (threads - 1);
 		while (curr < popArr.length) {
 			curr += dura;
-			if (curr > 2048) {
-				curr = 2048;
+			if (curr > popArr.length) {
+				curr = popArr.length;
 			}
 			groups[i++] = curr;
 		}
-
-		Arrays.stream(groups).forEach(System.out::println);
-
-		Arrays.sort(this.popArr);
 	}
 
 	/**
@@ -108,25 +108,22 @@ public class Population {
 	public void evolve() {
 		// Create a buffer for the new generation
 		Chromosome[] buffer = new Chromosome[popArr.length];
-
+		// Create a thread-pool to meet the goal of parallel compuation
+		pool = Executors.newFixedThreadPool(threads);
 		// Copy over a portion of the population unchanged, based on
 		// the elitism ratio.
 		int idx = Math.round(popArr.length * elitism);
 		System.arraycopy(popArr, 0, buffer, 0, idx);
 
-		ExecutorService pool = Executors.newFixedThreadPool(12);
-
 		for (int i = 1; i < groups.length; i++) {
-			Thread t = new MyThread(groups[i - 1], groups[i], buffer, popArr, crossover, mutation);
-			pool.execute(t);
+			pool.execute(new MyThread(groups[i - 1], groups[i], buffer, popArr));
 		}
 
 		pool.shutdown();
-		while (true) {
-			if (pool.isTerminated()) {
-				// System.out.println("所有的子线程都结束了！");
-				break;
-			}
+		try {
+			pool.awaitTermination(1, TimeUnit.HOURS);
+		} catch (Exception e) {
+			System.out.println(e);
 		}
 
 		// Iterate over the remainder of the population and evolve as
